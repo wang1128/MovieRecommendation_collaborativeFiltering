@@ -1,0 +1,174 @@
+__author__ = 'penghao'
+from scipy import spatial
+import numpy as np
+
+def getDataMatrix():
+    infile = np.loadtxt('train.txt')
+    dataMatrix = infile[:,:]
+    return dataMatrix
+
+def setKValidation(num): #num is 0 - 9 10-fold validation
+    dataMatrix = getDataMatrix()
+    x = np.arange(100)
+    np.random.seed(0)
+    np.random.shuffle(x) # x is a list of random number from 0 to 99
+    y = np.split(x,10) # y is a set of arrary that cut the list by 10 slides
+    z = x.tolist()
+    for element in y[num]:
+        z.remove(element)
+
+    trainData = dataMatrix[z]
+    testData = dataMatrix[y[num]]
+    return trainData, testData #90 for training, 10 for testing
+
+
+#print trainData.shape, testData.shape
+#print type(trainData), type(testData)
+
+def calWeight(trainData, testVector,num):
+
+    newtr =np.copy(trainData)
+    newtest = np.copy(testVector)
+    wList = []
+    idxList = np.where(newtest == 0)
+    idxList2 = np.where(newtr[num] == 0.0)
+    finallist = idxList2[0].tolist() + idxList[0].tolist()
+    setList = set(finallist)
+    final = list(setList)
+    newtr[num][final] = 0
+    newtest[final] = 0
+    #print np.count_nonzero(newtr[num])
+    #print np.count_nonzero(newtest)
+    if np.count_nonzero(newtr[num]) == 0:
+        result = 0
+    else:
+        result = 1 - spatial.distance.cosine(trainData[num], testVector)
+
+    return result
+    '''
+    newtr =np.copy(trainData)
+    newtest = np.copy(testVector)
+    wList = []
+    idxList = np.where(newtest == 0)
+    #idxList2 = np.where(newtr[num] == 0.0)
+    for idx in range(0,90):
+
+        #trainData[idx][idxList] = 0
+        idxList2 = np.where(newtr[idx] == 0.0)
+        finallist = idxList2[0].tolist() + idxList[0].tolist()
+        setList = set(finallist)
+        final = list(setList)
+        print len(final)
+        newtr[idx][final] = 0
+        for element in final:
+
+            newtest[element] = 0
+        print np.count_nonzero(newtr[idx])
+        count = 0
+        for element in newtest:
+            if element == 0:
+                count = count + 1
+        print 1000 - count
+        #print newTestVector
+
+        if np.count_nonzero(newtest) == 0:
+            wList.append(0.0)
+        else:
+            result = 1 - spatial.distance.cosine(newtr[idx], newtest)
+            wList.append(result)
+    return wList
+    '''
+def calWeightList(k,trainData,testData): # k is 0 -9
+    wList = []
+    for i in range(0,90):
+        w= calWeight(trainData,testData[k],i)
+        wList.append(w)
+    return wList
+
+def modifyTrainData(trainData):
+    #print trainData[0]
+    modifyTrain = np.copy(trainData)
+    aveRate = []
+    for idx in range(0,90):
+        sum = 0.0
+        count = 0.0
+        for num in trainData[idx]:
+            if num !=0:
+                sum = sum + num
+                count = count + 1
+        ave = sum/count
+        aveRate.append(ave)
+    for idx in range(0,90):
+        for i, num in enumerate(modifyTrain[idx]):
+            if num !=0:
+                modifyTrain[idx][i] = num - aveRate[idx]
+
+    #print trainData[0]
+    #print modifyTrain[0]
+    #print aveRate
+    return modifyTrain
+def predict(k,w,trainData,testData): #testdata 5
+    sum = 0.0
+    count = 0.0
+    for element in testData[k]:
+        if element != 0:
+            sum = sum + element
+            count = count + 1
+    testave = sum/ count
+
+    mTrain = modifyTrainData(trainData)
+    predictList = []
+    sumW = 0
+    for num in w:
+        sumW = sumW + abs(num)
+    #print sumW
+    sumAbove = []
+    rateList = []
+    for i in range(0,1000):
+        for idx in range(0,90):
+            sumAll = 0
+            rate = mTrain[:,i]
+            weight = w[idx]
+            for num in rate:
+                sumAll = sumAll + num*weight
+        predictRate = testave + sumAll/sumW
+        rateList.append(predictRate)
+        sumAbove.append(sumAll)
+
+    #print sumAbove
+    #print rateList
+    return rateList
+#predict = predict(2)
+def testAccuracy(k,prediction,testData):
+    count = 0
+    countAcc = 0
+    for idx, num in enumerate(testData[k]):
+        if num !=0:
+            count += 1
+            #print round(predict[idx])
+            if round(prediction[idx]) == num:
+
+                countAcc += 1
+
+    #print count
+    #print countAcc
+    return count, countAcc
+
+def CrossValidation(num):
+    trainData, testData = setKValidation(num)
+    totalRateNum = 0.0
+    accPrediction = 0.0
+    for i in range(0,10):
+        #i=8
+        w = calWeightList(i,trainData,testData)
+
+        preList = predict(i,w,trainData,testData)
+        total, acc = testAccuracy(i,preList,testData)
+        totalRateNum += total
+        accPrediction += acc
+    print accPrediction/totalRateNum
+
+for i in range(10):
+    print i
+    CrossValidation(i)
+#print testData[5]
