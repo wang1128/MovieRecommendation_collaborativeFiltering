@@ -1,4 +1,5 @@
 __author__ = 'penghao'
+__author__ = 'penghao'
 from scipy import spatial
 import numpy as np
 import datetime
@@ -23,12 +24,48 @@ def setKValidation(num): #num is 0 - 9 10-fold validation
     #print trainData.shape, testData.shape
     return trainData, testData #180 for training, 20 for testing
 
+def setCorrelation(num): #num is 0 - 9 10-fold validation
+    dataMatrix = calcorelation()
+    x = np.arange(200)
+    np.random.seed(0)
+    np.random.shuffle(x) # x is a list of random number from 0 to 99
+    y = np.split(x,10) # y is a set of arrary that cut the list by 10 slides
+    z = x.tolist()
+    for element in y[num]:
+        z.remove(element)
+
+    trainData = dataMatrix[z]
+    testData = dataMatrix[y[num]]
+    #print trainData.shape, testData.shape
+    return trainData, testData #180 for training, 20 for testing
+
+def calAve(vector):
+    sum = 0.0
+    count = 0.0
+    for element in vector:
+        if element !=0:
+            sum = sum + element
+            count += 1
+    ave = sum/count
+    return ave
+
+
+def calcorelation():
+    dataMatrix =  getDataMatrix()
+    for i in range(0,200):
+        ave = calAve(dataMatrix[i])
+        #print ave
+        for idx, element in enumerate(dataMatrix[i]):
+            if element !=0:
+                dataMatrix[i][idx] = dataMatrix[i][idx] - ave
+    return dataMatrix
+
 
 #print trainData.shape, testData.shape
 #print type(trainData), type(testData)
 
 def calWeight(trainData, testVector,num):
-    '''
+
     newtr =np.copy(trainData)
     newtest = np.copy(testVector)
     wList = []
@@ -44,8 +81,8 @@ def calWeight(trainData, testVector,num):
     if np.count_nonzero(newtr[num]) == 0:
         result = 0
     else:
-    '''
-    result = 1 - spatial.distance.cosine(trainData[num], testVector)
+
+        result = 1 - spatial.distance.cosine(trainData[num], testVector)
 
     return result
 
@@ -127,11 +164,12 @@ def testAccuracy(k,prediction,testData):
 
 def CrossValidation1(num):
     trainData, testData = setKValidation(num)
+    wTrainData, wTestData = setCorrelation(num)
     totalRateNum = 0.0
     accPrediction = 0.0
     for i in range(0,10):
         #i=8
-        w = calWeightList(i,trainData,testData)
+        w = calWeightList(i,wTrainData,wTestData)  # wlist
 
         preList = predict(i,w,trainData,testData)
         total, acc = testAccuracy(i,preList,testData)
@@ -149,4 +187,6 @@ def main():
 #print testData[5]
 
 if  __name__ =='__main__':
+    d=calcorelation()
     main()
+    #print d

@@ -1,6 +1,7 @@
 __author__ = 'penghao'
 from scipy import spatial
 import numpy as np
+import datetime
 
 def getDataMatrix():
     infile = np.loadtxt('train.txt')
@@ -89,7 +90,7 @@ def predict(simVector, numberOfSelect,dataVector): # the most largest value
 def predictRate(simMatrix,dataMatrix,indexUsers):
     predictionList = []
     for i in range(0,1000):
-        simIndex, sim, sumS = predict(simMatrix[i],10,dataMatrix[indexUsers])
+        simIndex, sim, sumS = predict(simMatrix[i],10,dataMatrix[indexUsers]) # After comparision 10 similarity item perform the best
         rateList = dataMatrix[indexUsers][simIndex]
         sumSR =0.0
         for idx, element in enumerate(rateList):
@@ -116,7 +117,7 @@ def testAcc(simMatrix,dataMatrix,pMatrix,indexofUser):
     for idx in range(0,1000):
         if originalRate[idx] != 0:
             count = count + 1
-            if round(predictionList[idx]) == originalRate[idx]:
+            if round(predictionList[idx]) == originalRate[idx] or round(predictionList[idx]) == originalRate[idx] + 1 or round(predictionList[idx]) == originalRate[idx] - 1 :
                 countAcc = countAcc + 1
         else:
             continue
@@ -140,29 +141,30 @@ def crossV(simMatrix,dataMatrix,pMatrix,groupNum): # group num is 0-9
     sumCountAcc =0.0
     for i in y[groupNum]:
         count, countAcc =testAcc(simMatrix,dataMatrix,pMatrix,i)
-        #print count, countAcc
+
         sumCount = sumCount + count
         sumCountAcc = sumCountAcc + countAcc
     return sumCountAcc/sumCount
 
-dataMatrix= getDataMatrix()
-aveList = getItemAve(dataMatrix)
-#print aveList
-#print len(aveList)
-newM = getModifyMatrix(dataMatrix,aveList)
-#print newM
-#print newM.shape
-r = calSim(newM[:,0],newM[:,1])
-#print r
+def main():
+    a = datetime.datetime.now().replace(microsecond=0)
+    dataMatrix= getDataMatrix()
+    aveList = getItemAve(dataMatrix)
 
-simMatrix = np.load('simMatrix.npy')
-#simMatrix = SimMatrix(newM)
+    newM = getModifyMatrix(dataMatrix,aveList)
 
+    r = calSim(newM[:,0],newM[:,1])
 
-#pMatrix = np.array(calPredictionMatrix())
-pMatrix = np.load('pMatrix.npy')
-#np.save('pMatrix',pMatrix)
-for i in range(0,10):
-    print i
-    acc = crossV(simMatrix,dataMatrix,pMatrix,i)
-    print acc
+    simMatrix = np.load('simMatrix.npy')
+    #simMatrix = SimMatrix(newM)
+    #pMatrix = np.array(calPredictionMatrix())
+    pMatrix = np.load('pMatrix.npy')
+    #np.save('pMatrix',pMatrix)
+    for i in range(0,10):
+        #print i
+        acc = crossV(simMatrix,dataMatrix,pMatrix,i)
+        print acc
+    b = datetime.datetime.now()
+    print(b-a)
+if  __name__ =='__main__':
+    main()
