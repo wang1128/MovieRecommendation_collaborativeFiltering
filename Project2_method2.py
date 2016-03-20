@@ -87,10 +87,10 @@ def predict(simVector, numberOfSelect,dataVector): # the most largest value
 
     return simIndex, similarityList, sumS
 
-def predictRate(simMatrix,dataMatrix,indexUsers):
+def predictRate(simMatrix,dataMatrix,indexUsers): #predict rate
     predictionList = []
     for i in range(0,1000):
-        simIndex, sim, sumS = predict(simMatrix[i],10,dataMatrix[indexUsers]) # After comparision 10 similarity item perform the best
+        simIndex, sim, sumS = predict(simMatrix[i],20,dataMatrix[indexUsers]) # After comparision 10 similarity item perform the best
         rateList = dataMatrix[indexUsers][simIndex]
         sumSR =0.0
         for idx, element in enumerate(rateList):
@@ -107,6 +107,7 @@ def predictRate(simMatrix,dataMatrix,indexUsers):
             prediction = 0
         predictionList.append(prediction)
         #print rateList
+    #print predictionList
     return predictionList
 
 def testAcc(simMatrix,dataMatrix,pMatrix,indexofUser):
@@ -118,12 +119,13 @@ def testAcc(simMatrix,dataMatrix,pMatrix,indexofUser):
         if originalRate[idx] != 0:
             count = count + 1
             if round(predictionList[idx]) == originalRate[idx] or round(predictionList[idx]) == originalRate[idx] + 1 or round(predictionList[idx]) == originalRate[idx] - 1 :
+                #print predictionList[idx]
                 countAcc = countAcc + 1
         else:
             continue
     return count, countAcc
 
-def calPredictionMatrix():
+def calPredictionMatrix(simMatrix,dataMatrix):
     pMatrix = []
     for i in range(0,200):
         print i
@@ -157,9 +159,10 @@ def main():
 
     simMatrix = np.load('simMatrix.npy')
     #simMatrix = SimMatrix(newM)
-    #pMatrix = np.array(calPredictionMatrix())
-    pMatrix = np.load('pMatrix.npy')
-    #np.save('pMatrix',pMatrix)
+    #pMatrix = np.array(calPredictionMatrix(simMatrix,dataMatrix))
+    pMatrix = np.load('pMatrix20.npy')
+
+    np.save('pMatrix20',pMatrix)
     for i in range(0,10):
         #print i
         acc = crossV(simMatrix,dataMatrix,pMatrix,i)
