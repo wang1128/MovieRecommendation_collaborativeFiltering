@@ -49,7 +49,6 @@ def calAve(vector):
     ave = sum/count
     return ave
 
-
 def calcorelation():
     dataMatrix =  getDataMatrix()
     for i in range(0,200):
@@ -59,10 +58,6 @@ def calcorelation():
             if element !=0:
                 dataMatrix[i][idx] = dataMatrix[i][idx] - ave
     return dataMatrix
-
-
-#print trainData.shape, testData.shape
-#print type(trainData), type(testData)
 
 def calWeight(trainData, testVector,num):
 
@@ -115,6 +110,7 @@ def modifyTrainData(trainData):
     #print modifyTrain[0]
     #print aveRate
     return modifyTrain
+
 def predict(k,w,trainData,testData): #testdata 5
     sum = 0.0
     count = 0.0
@@ -187,6 +183,5 @@ def main():
 #print testData[5]
 
 if  __name__ =='__main__':
-    d=calcorelation()
+    #d=calcorelation()
     main()
-    #print d

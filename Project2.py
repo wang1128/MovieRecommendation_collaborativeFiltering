@@ -12,7 +12,7 @@ def setKValidation(num): #num is 0 - 9 10-fold validation
     dataMatrix = getDataMatrix()
     x = np.arange(200)
     np.random.seed(0)
-    np.random.shuffle(x) # x is a list of random number from 0 to 99
+    np.random.shuffle(x) # x is a list of random number from 0 to 199
     y = np.split(x,10) # y is a set of arrary that cut the list by 10 slides
     z = x.tolist()
     for element in y[num]:
@@ -22,10 +22,6 @@ def setKValidation(num): #num is 0 - 9 10-fold validation
     testData = dataMatrix[y[num]]
     #print trainData.shape, testData.shape
     return trainData, testData #180 for training, 20 for testing
-
-
-#print trainData.shape, testData.shape
-#print type(trainData), type(testData)
 
 def calWeight(trainData, testVector,num):
     '''
@@ -78,6 +74,7 @@ def modifyTrainData(trainData):
     #print modifyTrain[0]
     #print aveRate
     return modifyTrain
+
 def predict(k,w,trainData,testData): #testdata 5
     sum = 0.0
     count = 0.0
@@ -109,7 +106,7 @@ def predict(k,w,trainData,testData): #testdata 5
     #print sumAbove
     #print rateList
     return rateList
-#predict = predict(2)
+
 def testAccuracy(k,prediction,testData):
     count = 0
     countAcc = 0
@@ -146,7 +143,7 @@ def main():
         CrossValidation1(i)
     b = datetime.datetime.now()
     print(b-a)
-#print testData[5]
+
 
 if  __name__ =='__main__':
     main()
