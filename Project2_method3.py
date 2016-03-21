@@ -143,16 +143,25 @@ def predict(k,w,trainData,testData): #testdata 5
     #print rateList
     return rateList
 #predict = predict(2)
-def testAccuracy(k,prediction,testData):
+def testAccuracy(k,prediction,testData,flag):
     count = 0
     countAcc = 0
-    for idx, num in enumerate(testData[k]):
-        if num !=0:
-            count += 1
-            #print round(predict[idx])
-            if round(prediction[idx]) == num or round(prediction[idx]) == num + 1 or round(prediction[idx]) == num - 1:
+    if flag == 1:
+        for idx, num in enumerate(testData[k]):
+            if num !=0:
+                count += 1
+                #print round(predict[idx])
+                if round(prediction[idx]) == num: #or round(prediction[idx]) == num + 1 or round(prediction[idx]) == num - 1:
 
-                countAcc += 1
+                    countAcc += 1
+    if flag == 2:
+        for idx, num in enumerate(testData[k]):
+            if num !=0:
+                count += 1
+                #print round(predict[idx])
+                if round(prediction[idx]) == num or round(prediction[idx]) == num + 1 or round(prediction[idx]) == num - 1:
+
+                    countAcc += 1
 
     #print count
     #print countAcc
@@ -163,15 +172,18 @@ def CrossValidation1(num):
     wTrainData, wTestData = setCorrelation(num)
     totalRateNum = 0.0
     accPrediction = 0.0
-    for i in range(0,10):
+    accRateSum= 0.0
+    for i in range(0,20):
         #i=8
         w = calWeightList(i,wTrainData,wTestData)  # wlist
 
         preList = predict(i,w,trainData,testData)
-        total, acc = testAccuracy(i,preList,testData)
-        totalRateNum += total
-        accPrediction += acc
-    print accPrediction/totalRateNum
+        total, acc = testAccuracy(i,preList,testData,1)
+        #totalRateNum += total
+        #accPrediction += acc
+        accRate = float(acc)/float(total)
+        accRateSum +=accRate
+    print accRateSum/20.0
 
 def main():
     a = datetime.datetime.now().replace(microsecond=0)

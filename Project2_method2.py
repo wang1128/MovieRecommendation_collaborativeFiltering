@@ -110,19 +110,29 @@ def predictRate(simMatrix,dataMatrix,indexUsers): #predict rate
     #print predictionList
     return predictionList
 
-def testAcc(simMatrix,dataMatrix,pMatrix,indexofUser):
+def testAcc(simMatrix,dataMatrix,pMatrix,indexofUser,flag):
     predictionList = pMatrix[indexofUser]
     originalRate = dataMatrix[indexofUser]
     count = 0
     countAcc = 0
-    for idx in range(0,1000):
-        if originalRate[idx] != 0:
-            count = count + 1
-            if round(predictionList[idx]) == originalRate[idx] or round(predictionList[idx]) == originalRate[idx] + 1 or round(predictionList[idx]) == originalRate[idx] - 1 :
-                #print predictionList[idx]
-                countAcc = countAcc + 1
-        else:
-            continue
+    if flag == 1:
+        for idx in range(0,1000):
+            if originalRate[idx] != 0:
+                count = count + 1
+                if round(predictionList[idx]) == originalRate[idx]: #or round(predictionList[idx]) == originalRate[idx] + 1 or round(predictionList[idx]) == originalRate[idx] - 1 :
+                    #print predictionList[idx]
+                    countAcc = countAcc + 1
+            else:
+                continue
+    if flag == 2:
+        for idx in range(0,1000):
+            if originalRate[idx] != 0:
+                count = count + 1
+                if round(predictionList[idx]) == originalRate[idx] or round(predictionList[idx]) == originalRate[idx] + 1 or round(predictionList[idx]) == originalRate[idx] - 1 :
+                    #print predictionList[idx]
+                    countAcc = countAcc + 1
+            else:
+                continue
     return count, countAcc
 
 def calPredictionMatrix(simMatrix,dataMatrix):
@@ -141,12 +151,15 @@ def crossV(simMatrix,dataMatrix,pMatrix,groupNum): # group num is 0-9
     y = np.split(x,10)
     sumCount = 0.0
     sumCountAcc =0.0
+    accRateSum= 0.0
     for i in y[groupNum]:
-        count, countAcc =testAcc(simMatrix,dataMatrix,pMatrix,i)
+        count, countAcc =testAcc(simMatrix,dataMatrix,pMatrix,i,2)
 
-        sumCount = sumCount + count
-        sumCountAcc = sumCountAcc + countAcc
-    return sumCountAcc/sumCount
+        #sumCount = sumCount + count
+        #sumCountAcc = sumCountAcc + countAcc
+        accRate = float(countAcc)/float(count)
+        accRateSum +=accRate
+    return accRateSum/float(len(y[groupNum]))#sumCountAcc/sumCount
 
 def main():
     a = datetime.datetime.now().replace(microsecond=0)
@@ -160,9 +173,9 @@ def main():
     simMatrix = np.load('simMatrix.npy')
     #simMatrix = SimMatrix(newM)
     #pMatrix = np.array(calPredictionMatrix(simMatrix,dataMatrix))
-    pMatrix = np.load('pMatrix20.npy')
+    pMatrix = np.load('pMatrix5.npy')
 
-    np.save('pMatrix20',pMatrix)
+    #np.save('pMatrix20',pMatrix)
     for i in range(0,10):
         #print i
         acc = crossV(simMatrix,dataMatrix,pMatrix,i)
