@@ -1,4 +1,6 @@
 #Movie_Recommendation_System
+#Introduction
+In this project, I developed different algorithms to make recommendations for movies. In the first method, memory-based  collaborative filtering algorithm based on vector similarity method is develop. The related file is Project2.py. In the second part, a model-based collaborative filtering algorithm based on correlation-based Similarity is installed. The related file is Project2\_method2.py. In the third part, I modified the memory-based model. The Project2\_method3.py is using this method.
 #Memory-based based on vector similarity
 1. getDataMatrix() is to load the data to numpy array.<br />
 2. setKValidation(num) is to set 10-fold cross-validation Matrix for training and testing.
