@@ -1,5 +1,4 @@
 __author__ = 'penghao'
-__author__ = 'penghao'
 from scipy import spatial
 import numpy as np
 import datetime
@@ -21,7 +20,6 @@ def setKValidation(num): #num is 0 - 9 10-fold validation
 
     trainData = dataMatrix[z]
     testData = dataMatrix[y[num]]
-    #print trainData.shape, testData.shape
     return trainData, testData #180 for training, 20 for testing
 
 def setCorrelation(num): #num is 0 - 9 10-fold validation
@@ -36,7 +34,6 @@ def setCorrelation(num): #num is 0 - 9 10-fold validation
 
     trainData = dataMatrix[z]
     testData = dataMatrix[y[num]]
-    #print trainData.shape, testData.shape
     return trainData, testData #180 for training, 20 for testing
 
 def calAve(vector):
@@ -49,17 +46,16 @@ def calAve(vector):
     ave = sum/count
     return ave
 
-def calcorelation():
+def calcorelation(): #calculate the correaltion
     dataMatrix =  getDataMatrix()
     for i in range(0,200):
         ave = calAve(dataMatrix[i])
-        #print ave
         for idx, element in enumerate(dataMatrix[i]):
             if element !=0:
                 dataMatrix[i][idx] = dataMatrix[i][idx] - ave
     return dataMatrix
 
-def calWeight(trainData, testVector,num):
+def calWeight(trainData, testVector,num):# adjust the matrix, remain the rate that both have the rating
 
     newtr =np.copy(trainData)
     newtest = np.copy(testVector)
@@ -71,8 +67,7 @@ def calWeight(trainData, testVector,num):
     final = list(setList)
     newtr[num][final] = 0
     newtest[final] = 0
-    #print np.count_nonzero(newtr[num])
-    #print np.count_nonzero(newtest)
+
     if np.count_nonzero(newtr[num]) == 0:
         result = 0
     else:
@@ -89,7 +84,6 @@ def calWeightList(k,trainData,testData): # k is 0 -9
     return wList
 
 def modifyTrainData(trainData):
-    #print trainData[0]
     modifyTrain = np.copy(trainData)
     aveRate = []
     for idx in range(0,180):
@@ -106,12 +100,9 @@ def modifyTrainData(trainData):
             if num !=0:
                 modifyTrain[idx][i] = num - aveRate[idx]
 
-    #print trainData[0]
-    #print modifyTrain[0]
-    #print aveRate
     return modifyTrain
 
-def predict(k,w,trainData,testData): #testdata 5
+def predict(k,w,trainData,testData):
     sum = 0.0
     count = 0.0
     for element in testData[k]:
@@ -125,7 +116,7 @@ def predict(k,w,trainData,testData): #testdata 5
     sumW = 0
     for num in w:
         sumW = sumW + abs(num)
-    #print sumW
+
     sumAbove = []
     rateList = []
     for i in range(0,1000):
@@ -139,10 +130,8 @@ def predict(k,w,trainData,testData): #testdata 5
         rateList.append(predictRate)
         sumAbove.append(sumAll)
 
-    #print sumAbove
-    #print rateList
     return rateList
-#predict = predict(2)
+
 def testAccuracy(k,prediction,testData,flag):
     count = 0
     countAcc = 0
@@ -150,21 +139,19 @@ def testAccuracy(k,prediction,testData,flag):
         for idx, num in enumerate(testData[k]):
             if num !=0:
                 count += 1
-                #print round(predict[idx])
-                if round(prediction[idx]) == num: #or round(prediction[idx]) == num + 1 or round(prediction[idx]) == num - 1:
+
+                if round(prediction[idx]) == num:
 
                     countAcc += 1
     if flag == 2:
         for idx, num in enumerate(testData[k]):
             if num !=0:
                 count += 1
-                #print round(predict[idx])
+
                 if round(prediction[idx]) == num or round(prediction[idx]) == num + 1 or round(prediction[idx]) == num - 1:
 
                     countAcc += 1
 
-    #print count
-    #print countAcc
     return count, countAcc
 
 def CrossValidation1(num):
@@ -188,12 +175,10 @@ def CrossValidation1(num):
 def main():
     a = datetime.datetime.now().replace(microsecond=0)
     for i in range(10):
-        #print i
+
         CrossValidation1(i)
     b = datetime.datetime.now()
     print(b-a)
-#print testData[5]
 
 if  __name__ =='__main__':
-    #d=calcorelation()
     main()

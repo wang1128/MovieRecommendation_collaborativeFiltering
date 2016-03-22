@@ -24,8 +24,7 @@ def setKValidation(num): #num is 0 - 9 10-fold validation
     return trainData, testData #180 for training, 20 for testing
 
 def calWeight(trainData, testVector,num):
-
-    newtr =np.copy(trainData) # adjust the matrix
+    newtr =np.copy(trainData) # adjust the matrix, remain the rate that both have the rating
     newtest = np.copy(testVector)
     wList = []
     idxList = np.where(newtest == 0)
@@ -52,7 +51,6 @@ def calWeightList(k,trainData,testData): # k is 0 -9
     return wList
 
 def modifyTrainData(trainData):
-    #print trainData[0]
     modifyTrain = np.copy(trainData)
     aveRate = []
     for idx in range(0,180):
@@ -68,11 +66,9 @@ def modifyTrainData(trainData):
         for i, num in enumerate(modifyTrain[idx]):
             if num !=0:
                 modifyTrain[idx][i] = num - aveRate[idx]
-
-
     return modifyTrain
 
-def predict(k,w,trainData,testData): #testdata 5
+def predict(k,w,trainData,testData): #Predict the rate and create a list of prediction
     sum = 0.0
     count = 0.0
     for element in testData[k]:
@@ -86,7 +82,6 @@ def predict(k,w,trainData,testData): #testdata 5
     sumW = 0
     for num in w:
         sumW = sumW + abs(num)
-    #print sumW
     sumAbove = []
     rateList = []
     for i in range(0,1000):
@@ -100,8 +95,6 @@ def predict(k,w,trainData,testData): #testdata 5
         rateList.append(predictRate)
         sumAbove.append(sumAll)
 
-    #print sumAbove
-    #print rateList
     return rateList
 
 def testAccuracy(k,prediction,testData,flag):# flag is help to select method to measure
@@ -111,30 +104,23 @@ def testAccuracy(k,prediction,testData,flag):# flag is help to select method to 
         for idx, num in enumerate(testData[k]):
             if num !=0:
                 count += 1
-                #print round(predict[idx])
                 if round(prediction[idx]) == num:
-
                     countAcc += 1
     if flag == 2:
         for idx, num in enumerate(testData[k]):
             if num !=0:
                 count += 1
-                #print round(predict[idx])
                 if round(prediction[idx]) == num or round(prediction[idx]) == num + 1 or round(prediction[idx]) == num - 1:
-
                     countAcc += 1
-
-    #print count
-    #print countAcc
     return count, countAcc
 
-def CrossValidation1(num):
+def CrossValidation1(num): #Return the average of accuracy
     trainData, testData = setKValidation(num)
     totalRateNum = 0.0
     accPrediction = 0.0
     accRateSum= 0.0
     for i in range(0,20):
-        #i=8
+
         w = calWeightList(i,trainData,testData)
 
         preList = predict(i,w,trainData,testData)
@@ -147,15 +133,12 @@ def CrossValidation1(num):
         #print accPrediction/totalRateNum
     print accRateSum/20.0
 
-
 def main():
     a = datetime.datetime.now().replace(microsecond=0)
     for i in range(10):
-        #print i
         CrossValidation1(i)
     b = datetime.datetime.now()
     print(b-a)
-
 
 if  __name__ =='__main__':
     main()

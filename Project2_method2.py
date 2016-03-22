@@ -8,7 +8,7 @@ def getDataMatrix():
     dataMatrix = infile[:,:]
     return dataMatrix
 
-def getItemAve(dataMatrix):
+def getItemAve(dataMatrix): # Get the Items average rating
     aveList = []
     for idx in range(0,1000):
         new = np.copy(dataMatrix[:,idx]) # each column
@@ -38,7 +38,7 @@ def getModifyMatrix(dataMatrix,aveList):# value = rating - average of rating
                 continue
     return newMatrix
 
-def calSim(vetctor1, vector2):
+def calSim(vetctor1, vector2): # adjust the matrix, remain the rate that both have the rating
     newtr =np.copy(vetctor1)
     newtest = np.copy(vector2)
     idxList = np.where(newtest == 0)
@@ -67,14 +67,13 @@ def SimMatrix(newM): # [0][:] means the first item similarity values with others
 
     return simMatrix
 
-def predict(simVector, numberOfSelect,dataVector): # the most largest value
+def predict(simVector, numberOfSelect,dataVector): # The numberOfSelect is the most largest value
     newSim = np.copy(simVector)
     for idx,element in enumerate(newSim):
         if dataVector[idx] == 0:
             newSim[idx] = 0
     simIndex = newSim.argsort()[-numberOfSelect:][::-1] # the largest n value index
     for idx, rate in enumerate(newSim):
-        #sumSrate = 0
         sumS = 0
         similarityList = newSim[simIndex] #simlarity
         rateList = dataVector[simIndex]
@@ -83,11 +82,9 @@ def predict(simVector, numberOfSelect,dataVector): # the most largest value
                 sumS = sumS + 0
             else:
                 sumS = sumS + abs(element)
-
-
     return simIndex, similarityList, sumS
 
-def predictRate(simMatrix,dataMatrix,indexUsers): #predict rate
+def predictRate(simMatrix,dataMatrix,indexUsers): #predict rate and return the predictionList
     predictionList = []
     for i in range(0,1000):
         simIndex, sim, sumS = predict(simMatrix[i],20,dataMatrix[indexUsers]) # After comparision 10 similarity item perform the best
@@ -96,18 +93,12 @@ def predictRate(simMatrix,dataMatrix,indexUsers): #predict rate
         for idx, element in enumerate(rateList):
             sumSR = sumSR + element * sim[idx]
 
-    #np.save('simMatrix.npy',simMatrix)
-    #print simIndex
-    #print sim
-    #print sumS
-    #print sumSR
         if sumS !=0:
             prediction = sumSR/ sumS
         else:
             prediction = 0
         predictionList.append(prediction)
-        #print rateList
-    #print predictionList
+
     return predictionList
 
 def testAcc(simMatrix,dataMatrix,pMatrix,indexofUser,flag):
@@ -119,8 +110,7 @@ def testAcc(simMatrix,dataMatrix,pMatrix,indexofUser,flag):
         for idx in range(0,1000):
             if originalRate[idx] != 0:
                 count = count + 1
-                if round(predictionList[idx]) == originalRate[idx]: #or round(predictionList[idx]) == originalRate[idx] + 1 or round(predictionList[idx]) == originalRate[idx] - 1 :
-                    #print predictionList[idx]
+                if round(predictionList[idx]) == originalRate[idx]:
                     countAcc = countAcc + 1
             else:
                 continue
@@ -129,7 +119,6 @@ def testAcc(simMatrix,dataMatrix,pMatrix,indexofUser,flag):
             if originalRate[idx] != 0:
                 count = count + 1
                 if round(predictionList[idx]) == originalRate[idx] or round(predictionList[idx]) == originalRate[idx] + 1 or round(predictionList[idx]) == originalRate[idx] - 1 :
-                    #print predictionList[idx]
                     countAcc = countAcc + 1
             else:
                 continue
@@ -155,11 +144,9 @@ def crossV(simMatrix,dataMatrix,pMatrix,groupNum): # group num is 0-9
     for i in y[groupNum]:
         count, countAcc =testAcc(simMatrix,dataMatrix,pMatrix,i,2)
 
-        #sumCount = sumCount + count
-        #sumCountAcc = sumCountAcc + countAcc
         accRate = float(countAcc)/float(count)
         accRateSum +=accRate
-    return accRateSum/float(len(y[groupNum]))#sumCountAcc/sumCount
+    return accRateSum/float(len(y[groupNum]))
 
 def main():
     a = datetime.datetime.now().replace(microsecond=0)
