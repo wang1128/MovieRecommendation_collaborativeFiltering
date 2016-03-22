@@ -24,8 +24,8 @@ def setKValidation(num): #num is 0 - 9 10-fold validation
     return trainData, testData #180 for training, 20 for testing
 
 def calWeight(trainData, testVector,num):
-    '''
-    newtr =np.copy(trainData)
+
+    newtr =np.copy(trainData) # adjust the matrix
     newtest = np.copy(testVector)
     wList = []
     idxList = np.where(newtest == 0)
@@ -35,13 +35,12 @@ def calWeight(trainData, testVector,num):
     final = list(setList)
     newtr[num][final] = 0
     newtest[final] = 0
-    #print np.count_nonzero(newtr[num])
-    #print np.count_nonzero(newtest)
+
     if np.count_nonzero(newtr[num]) == 0:
         result = 0
     else:
-    '''
-    result = 1 - spatial.distance.cosine(trainData[num], testVector)
+
+        result = 1 - spatial.distance.cosine(trainData[num], testVector)
 
     return result
 
@@ -70,9 +69,7 @@ def modifyTrainData(trainData):
             if num !=0:
                 modifyTrain[idx][i] = num - aveRate[idx]
 
-    #print trainData[0]
-    #print modifyTrain[0]
-    #print aveRate
+
     return modifyTrain
 
 def predict(k,w,trainData,testData): #testdata 5
@@ -107,7 +104,7 @@ def predict(k,w,trainData,testData): #testdata 5
     #print rateList
     return rateList
 
-def testAccuracy(k,prediction,testData,flag):
+def testAccuracy(k,prediction,testData,flag):# flag is help to select method to measure
     count = 0
     countAcc = 0
     if flag == 1:
@@ -115,7 +112,7 @@ def testAccuracy(k,prediction,testData,flag):
             if num !=0:
                 count += 1
                 #print round(predict[idx])
-                if round(prediction[idx]) == num: #or round(prediction[idx]) == num + 1 or round(prediction[idx]) == num - 1:
+                if round(prediction[idx]) == num:
 
                     countAcc += 1
     if flag == 2:
@@ -141,7 +138,7 @@ def CrossValidation1(num):
         w = calWeightList(i,trainData,testData)
 
         preList = predict(i,w,trainData,testData)
-        total, acc = testAccuracy(i,preList,testData,1)
+        total, acc = testAccuracy(i,preList,testData,2)
 
         #totalRateNum += total
         #accPrediction += acc
@@ -149,7 +146,7 @@ def CrossValidation1(num):
         accRateSum +=accRate
         #print accPrediction/totalRateNum
     print accRateSum/20.0
-        #print i
+
 
 def main():
     a = datetime.datetime.now().replace(microsecond=0)
