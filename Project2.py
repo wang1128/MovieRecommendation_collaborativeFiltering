@@ -87,7 +87,8 @@ def predict(k,w,trainData,testData): #Predict the rate and create a list of pred
     for i in range(0,1000):
         for idx in range(0,180):
             sumAll = 0
-            rate = mTrain[:,i]
+            rate = mTrain[:,i] #r_o-average
+            #print rate
             weight = w[idx]
             for num in rate:
                 sumAll = sumAll + num*weight
@@ -114,6 +115,18 @@ def testAccuracy(k,prediction,testData,flag):# flag is help to select method to 
                     countAcc += 1
     return count, countAcc
 
+def MAE(k,prediction,testData,flag):
+    count = 0
+    countAcc = 0
+    mae =0.0
+    if flag == 1:
+        for idx, num in enumerate(testData[k]):
+            if num !=0:
+                count += 1
+                mae +=abs(round(prediction[idx]) -num)
+                    #countAcc += 1
+    return count, mae
+
 def CrossValidation1(num): #Return the average of accuracy
     trainData, testData = setKValidation(num)
     totalRateNum = 0.0
@@ -124,14 +137,17 @@ def CrossValidation1(num): #Return the average of accuracy
         w = calWeightList(i,trainData,testData)
 
         preList = predict(i,w,trainData,testData)
-        total, acc = testAccuracy(i,preList,testData,2)
+        total, acc = testAccuracy(i,preList,testData,1)
+        countnumber, maeTotal = MAE(i,preList,testData,1)
 
         #totalRateNum += total
         #accPrediction += acc
         accRate = float(acc)/float(total)
         accRateSum +=accRate
+        mae = float(maeTotal)/float(countnumber)
         #print accPrediction/totalRateNum
-    print accRateSum/20.0
+    #print accRateSum/20.0
+    print mae
 
 def main():
     a = datetime.datetime.now().replace(microsecond=0)

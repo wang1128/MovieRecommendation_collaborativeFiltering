@@ -58,7 +58,7 @@ def SimMatrix(newM): # [0][:] means the first item similarity values with others
     simMatrix = np.zeros((1000, 1000))
     for idx in range(0,1000):
         for n in range(0,1000):
-            if idx == n:
+            if idx == n:       # get rid of the similarity of self
                 sim = 0
             else:
                 sim = calSim(newM[:,idx],newM[:,n])
@@ -124,6 +124,21 @@ def testAcc(simMatrix,dataMatrix,pMatrix,indexofUser,flag):
                 continue
     return count, countAcc
 
+def mae(simMatrix,dataMatrix,pMatrix,indexofUser,flag):
+    predictionList = pMatrix[indexofUser]
+    originalRate = dataMatrix[indexofUser]
+    count = 0
+    countAcc = 0
+    maeTotal =0.0
+
+    if flag == 1:
+        for idx in range(0,1000):
+            if originalRate[idx] != 0:
+                count = count + 1
+                maeTotal +=  abs(round(predictionList[idx])-originalRate[idx])
+                    #countAcc = countAcc + 1
+    return count, maeTotal
+
 def calPredictionMatrix(simMatrix,dataMatrix):
     pMatrix = []
     for i in range(0,200):
@@ -136,17 +151,19 @@ def crossV(simMatrix,dataMatrix,pMatrix,groupNum): # group num is 0-9
 
     x = np.arange(200)
     np.random.seed(0)
-    np.random.shuffle(x) # x is a list of random number from 0 to 99
+    #np.random.shuffle(x) # x is a list of random number from 0 to 199
     y = np.split(x,10)
     sumCount = 0.0
     sumCountAcc =0.0
     accRateSum= 0.0
     for i in y[groupNum]:
-        count, countAcc =testAcc(simMatrix,dataMatrix,pMatrix,i,2)
-
+        count, countAcc =testAcc(simMatrix,dataMatrix,pMatrix,i,1)
+        count2, maeTotal = mae(simMatrix,dataMatrix,pMatrix,i,1)
+        #print count2, maeTotal
+        MAE= maeTotal/float(count2)
         accRate = float(countAcc)/float(count)
         accRateSum +=accRate
-    return accRateSum/float(len(y[groupNum]))
+    return accRateSum/float(len(y[groupNum])),MAE
 
 def main():
     a = datetime.datetime.now().replace(microsecond=0)
@@ -165,8 +182,9 @@ def main():
     #np.save('pMatrix20',pMatrix)
     for i in range(0,10):
         #print i
-        acc = crossV(simMatrix,dataMatrix,pMatrix,i)
-        print acc
+        acc, MAE = crossV(simMatrix,dataMatrix,pMatrix,i)
+        print MAE
+        #print acc
     b = datetime.datetime.now()
     print(b-a)
 
